@@ -39,6 +39,10 @@
       }
     };
     var lookup;
+
+    var isPassword = $(this).attr("type") == "password";
+    var pwdInputSel = $(this).attr("id");
+    var pwdTextSel = pwdInputSel + "-text";
     var jQuery_labellified_elements = $(this);
     return $(this).each(function() {
       if (typeof settings.text === "string") {
@@ -54,25 +58,56 @@
       // need to strip newlines because the browser strips them
       // if you set textbox.value to a string containing them
       $(this).data("label",lookup(this).replace(/\n/g,''));
-      $(this).focus(function() {
-        if (this.value === $(this).data("label")) {
-          this.value = this.defaultValue;
-          $(this).removeClass(settings.labelledClass);
-        }
-      }).blur(function(){
-          if (this.value === this.defaultValue) {
-            this.value = $(this).data("label");
-            $(this).addClass(settings.labelledClass);
-          }
-        });
 
-      var removeValuesOnExit = function() {
-        jQuery_labellified_elements.each(function(){
+      if (isPassword) {
+        var passwordElement = $(this)
+          .clone()
+          .attr('type','text')
+          .attr('id', pwdTextSel);
+
+        $(this).after(passwordElement);
+        $("#"+ pwdTextSel)
+          .val($(this)
+          .data("label"))
+          .addClass(settings.labelledClass)
+          .focus(function() {
+          $(this).hide();
+          $("#"+ pwdInputSel).show().focus();
+        });
+        $("#"+ pwdInputSel).hide();
+      }
+
+      $(this).focus(function() {
+        if (!isPassword) {
           if (this.value === $(this).data("label")) {
             this.value = this.defaultValue;
             $(this).removeClass(settings.labelledClass);
           }
-        })
+        }
+      }).blur(function() {
+        if (isPassword) {
+          if ($(this).val()=="") {
+            $(this).hide();
+            $("#"+ pwdTextSel).show();
+          }
+        }
+        else {
+          if (this.value === this.defaultValue) {
+            this.value = $(this).data("label");
+            $(this).addClass(settings.labelledClass);
+          }
+        }
+      });
+
+      var removeValuesOnExit = function() {
+        jQuery_labellified_elements.each(function() {
+          if (!isPassword) {
+            if (this.value === $(this).data("label")) {
+              this.value = this.defaultValue;
+              $(this).removeClass(settings.labelledClass);
+            }
+          }
+        });
       };
 
       $(this).parents("form").submit(removeValuesOnExit);
@@ -83,9 +118,12 @@
         return;
       }
       // actually set the value
-      this.value = $(this).data("label");
-      $(this).addClass(settings.labelledClass);
-
+      if (!isPassword) {
+        $(this)
+          .val($(this)
+          .data("label"))
+          .addClass(settings.labelledClass);
+      }
     });
   };
 })(jQuery);
