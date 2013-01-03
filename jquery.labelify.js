@@ -41,9 +41,18 @@
     var lookup;
 
     var isPassword = $(this).attr("type") == "password";
-    var pwdInputSel = $(this).attr("id");
-    var pwdTextSel = pwdInputSel + "-text";
+
+    if (isPassword) {
+      var pwdInput = $(this);
+      var pwdDummy = $(this)
+        .clone()
+        .val('')
+        .attr('type','text')
+        .attr('id', $(this).attr("id") + "-text");
+    }
+
     var jQuery_labellified_elements = $(this);
+
     return $(this).each(function() {
       if (typeof settings.text === "string") {
         lookup = lookups[settings.text]; // what if not there?
@@ -57,39 +66,33 @@
 
       // need to strip newlines because the browser strips them
       // if you set textbox.value to a string containing them
-      $(this).data("label",lookup(this).replace(/\n/g,''));
+      $(this).data("label", lookup(this).replace(/\n/g,''));
 
       if (isPassword) {
-        var passwordElement = $(this)
-          .clone()
-          .attr('type','text')
-          .attr('id', pwdTextSel);
+        // Add dummy input to show label.
+        $(this).after(pwdDummy);
 
-        $(this).after(passwordElement);
-        $("#"+ pwdTextSel)
-          .val($(this)
-          .data("label"))
+        $(pwdDummy)
+          .val($(this).data("label"))
           .addClass(settings.labelledClass)
           .focus(function() {
-          $(this).hide();
-          $("#"+ pwdInputSel).show().focus();
-        });
-        $("#"+ pwdInputSel).hide();
+            $(this).hide();
+            $(pwdInput).show().focus();
+          });
+
+        // If value exist - leave field.
+        (pwdInput.val() == '') ? $(pwdInput).hide() : $(pwdDummy).hide();
       }
 
       $(this).focus(function() {
-        if (!isPassword) {
-          if (this.value === $(this).data("label")) {
-            this.value = this.defaultValue;
-            $(this).removeClass(settings.labelledClass);
-          }
+        if (!isPassword && this.value === $(this).data("label")) {
+          this.value = this.defaultValue;
+          $(this).removeClass(settings.labelledClass);
         }
       }).blur(function() {
-        if (isPassword) {
-          if ($(this).val()=="") {
-            $(this).hide();
-            $("#"+ pwdTextSel).show();
-          }
+        if (isPassword && $(this).val() == "") {
+          $(this).hide();
+          pwdDummy.show();
         }
         else {
           if (this.value === this.defaultValue) {
@@ -101,11 +104,9 @@
 
       var removeValuesOnExit = function() {
         jQuery_labellified_elements.each(function() {
-          if (!isPassword) {
-            if (this.value === $(this).data("label")) {
-              this.value = this.defaultValue;
-              $(this).removeClass(settings.labelledClass);
-            }
+          if (!isPassword && this.value === $(this).data("label")) {
+            this.value = this.defaultValue;
+            $(this).removeClass(settings.labelledClass);
           }
         });
       };
@@ -113,10 +114,9 @@
       $(this).parents("form").submit(removeValuesOnExit);
       $(window).unload(removeValuesOnExit);
 
-      if (this.value !== this.defaultValue) {
-        // user already started typing; don't overwrite their work!
-        return;
-      }
+      // user already started typing; don't overwrite their work!
+      if (this.value !== this.defaultValue) { return; }
+
       // actually set the value
       if (!isPassword) {
         $(this)
