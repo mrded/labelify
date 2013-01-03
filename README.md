@@ -15,15 +15,15 @@ Original _1.3 version_ from _25th June 2008_ by __Stuart Langridge__ located [he
 
 1. Since this is a [jQuery](http://jquery.com) plugin, it requires jQuery itself. You can either [download jQuery](http://jquery.com/) and make it part of your project, or for simplicity just use the Google edge-cached version by adding this to your HTML:
 
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
+    `<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>`
 
 2. Next, download jquery.labelify.js and add it to your project with
 
-    <script type="text/javascript" src="jquery.labelify.js"></script>
+    `<script type="text/javascript" src="jquery.labelify.js"></script>`
 
 3. You need to specify which text fields you want to have labels. By default, the plugin uses the title attribute of the input text field as the label. So change your text fields from
 
-    <input type="text" name="whatever">
+    `<input type="text" name="whatever">`
 
 to
 
@@ -31,11 +31,11 @@ to
 
 4. Finally, you need to tell the plugin to lability your fields:
 
-    <script type="text/javascript">
+    `<script type="text/javascript">
       $(document).ready(function(){
         $(":text").labelify();
       });
-    </script>
+    </script>`
 
 You can of course add this to your existing document-ready code block.
 
